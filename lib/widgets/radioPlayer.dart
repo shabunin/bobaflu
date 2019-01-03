@@ -8,8 +8,9 @@ import '../bobaos.dart';
 // TODO: onLongTap => showDialog radio list
 
 class AccRadioPlayer extends StatefulWidget {
-  // TODO: pass bobaos
-  // TODO: state when update happened
+  // DONE: pass bobaos
+  // DONE: state when update happened. info variable is a pointer to accessoryList[index]
+
   AccRadioPlayer({Key key, this.info, this.bobaos}) : super(key: key);
 
   // This class is the configuration for the state. It holds the values (in this
@@ -38,13 +39,46 @@ class _AccRadioPlayer extends State<AccRadioPlayer> {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return ListTile(
-      title: Text(info.name),
+      selected: false,
+      leading: new Icon(Icons.radio),
+      title: new Text("${info.name}: ${info.currentState['playing'].toString()}"),
+      trailing: Switch(
+          value: info.currentState['playing'] is bool
+              ? info.currentState['playing']
+              : false,
+          onChanged: null),
       onTap: () {
-        bobaos.getStatusValue(info.id, "playing", (err, res) {
-          print(res);
+        setState(() {
+          bobaos.getStatusValue(info.id, "playing", (bool err, Object payload) {
+            if (err) {
+              return print('error ocurred $payload');
+            }
+
+            print(payload);
+            if (payload is Map) {
+              dynamic currentValue = payload['status']['value'];
+              bool newValue;
+              if (currentValue is bool) {
+                newValue = !currentValue;
+              } else {
+                newValue = false;
+              }
+              bobaos.controlAccessoryValue(info.id, {"playing": newValue},
+                  (bool err, Object payload) {
+                if (err) {
+                  return print('error ocurred $payload');
+                }
+
+                print(payload);
+              });
+            }
+          });
         });
+      },
+      onLongPress: () {
+        print("Radio player long press!");
+        // TODO: dialog with radio list
       },
     );
   }
