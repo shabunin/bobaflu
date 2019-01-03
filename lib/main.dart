@@ -8,6 +8,7 @@ import 'dart:io';
 import './classes/AccessoryInfo.dart';
 
 import './bobaos.dart';
+import './widgets/switch.dart';
 import './widgets/radioPlayer.dart';
 
 void main() => runApp(MyApp());
@@ -180,7 +181,6 @@ class AccessoryListPage extends StatefulWidget {
   _AccessoryListPage createState() => _AccessoryListPage();
 }
 
-
 class _AccessoryListPage extends State<AccessoryListPage> {
   List<AccessoryInfo> accessoryList = [];
   BobaosWs bobaos;
@@ -285,43 +285,9 @@ class _AccessoryListPage extends State<AccessoryListPage> {
             itemBuilder: (BuildContext ctx, int index) {
               AccessoryInfo info = accessoryList[index];
               if (info.type == "switch") {
-                return SwitchListTile(
-                  title: new Text(info.name),
-                  value: (info.currentState['state'] is bool)
-                      ? info.currentState['state']
-                      : false,
-                  onChanged: (bool value) {
-                    setState(() {
-                      bobaos.getStatusValue(info.id, "state",
-                          (bool err, Object payload) {
-                        if (err) {
-                          return print('error ocurred $payload');
-                        }
-
-                        print(payload);
-                        if (payload is Map) {
-                          print("this is map. good");
-                          dynamic currentValue = payload['status']['value'];
-                          bool newValue;
-                          if (currentValue is bool) {
-                            newValue = !currentValue;
-                          } else {
-                            newValue = false;
-                          }
-                          bobaos.controlAccessoryValue(
-                              info.id, {"state": newValue},
-                              (bool err, Object payload) {
-                            if (err) {
-                              return print('error ocurred $payload');
-                            }
-
-                            print(payload);
-                          });
-                        }
-                      });
-                    });
-                  },
-                  secondary: const Icon(Icons.lightbulb_outline),
+                return AccSwitch(
+                  info: info,
+                  bobaos: bobaos,
                 );
               }
               if (info.type == "temperature sensor") {
@@ -398,10 +364,7 @@ class _AccessoryListPage extends State<AccessoryListPage> {
                 );
               }
               if (info.type == "radio player") {
-                return AccRadioPlayer(
-                  info: info,
-                  bobaos: bobaos
-                );
+                return AccRadioPlayer(info: info, bobaos: bobaos);
               }
             },
           ),
