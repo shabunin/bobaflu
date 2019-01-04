@@ -3,10 +3,6 @@ import 'package:flutter/material.dart';
 import '../classes/AccessoryInfo.dart';
 import '../bobaos.dart';
 
-// TODO: listile
-// TODO: onTap => play/pause
-// TODO: onLongTap => showDialog radio list
-
 class AccSwitch extends StatefulWidget {
   // DONE: pass bobaos
   // DONE: state when update happened. info variable is a pointer to accessoryList[index]
@@ -31,7 +27,6 @@ class _AccSwitch extends State<AccSwitch> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     info = widget.info;
     bobaos = widget.bobaos;
@@ -79,35 +74,8 @@ class _AccSwitch extends State<AccSwitch> {
         });
       },
       onLongPress: () {
-        print("Switch accessory long press!");
-        // TODO: dialog with radio list
+        // TODO: dialog with additional funcs
       },
     );
   }
 }
-
-//  showDialog(
-//      context: context,
-//      builder: (BuildContext ctx){
-//
-//        return Dialog(
-//            child: Container(
-//                child:Column(
-//                  children:<Widget>[
-//                    new RadioListTile( value: sortBy.asc,groupValue: _selected,onChanged: (v){
-//                      print(_selected);
-//
-//                      _selected = v;
-//                    },
-//                    ),
-//                    new RadioListTile( value: sortBy.desc,groupValue: _selected,onChanged: (v){
-//                      print(_selected);
-//                      _selected = v;
-//                    },
-//                    ),
-//                  ],
-//                )
-//            )
-//        );
-//      }
-//  );

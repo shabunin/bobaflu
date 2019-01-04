@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:mdns/mdns.dart';
 
-import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
-
 import './classes/AccessoryInfo.dart';
 
 import './bobaos.dart';
 import './widgets/switch.dart';
 import './widgets/radioPlayer.dart';
+import './widgets/temperatureSensor.dart';
+import './widgets/thermostatBasic.dart';
 
 void main() => runApp(MyApp());
 
@@ -291,80 +289,19 @@ class _AccessoryListPage extends State<AccessoryListPage> {
                 );
               }
               if (info.type == "temperature sensor") {
-                return ListTile(
-                  leading: Icon(Icons.ac_unit),
-                  title: Text(
-                      "${info.name}: ${info.currentState['current'].toString()}"),
-                  onTap: () {
-                    // read value on tap
-                    bobaos.controlAccessoryValue(info.id, {"read": true},
-                        (bool err, Object payload) {
-                      if (err) {
-                        return print('error ocurred $payload');
-                      }
-
-                      print(payload);
-                    });
-                  },
-                );
-              }
-              if (info.type == "thermostat basic") {
-                return ListTile(
-                  leading: Icon(Icons.beach_access),
-                  title: Text(
-                      "${info.name}: ${info.currentState['current'].toString()} ==> ${info.currentState['setpoint']}"),
-                  onTap: () {
-                    TextEditingController _c = new TextEditingController();
-
-                    // TODO: open page
-                    return showDialog(
-                      context: context,
-                      builder: (context) {
-                        return new Dialog(
-                          child: new Column(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              new TextField(
-                                decoration:
-                                    new InputDecoration(hintText: "100"),
-                                controller: _c,
-                              ),
-                              new FlatButton(
-                                child: new Text("Set"),
-                                onPressed: () {
-                                  int setpoint = int.parse(_c.text);
-                                  bobaos.controlAccessoryValue(
-                                      info.id, {"setpoint": setpoint},
-                                      (bool err, Object payload) {
-                                    if (err) {
-                                      return print('error ocurred $payload');
-                                    }
-
-                                    print(payload);
-                                    Navigator.pop(context);
-                                    bobaos.controlAccessoryValue(
-                                        info.id, {"power": true},
-                                        (bool err, Object payload) {
-                                      if (err) {
-                                        return print('error ocurred $payload');
-                                      }
-
-                                      print(payload);
-                                    });
-                                  });
-                                },
-                              )
-                            ],
-                          ),
-                        );
-                      },
-                    );
-                  },
+                return AccTemperatureSensor(
+                  info: info,
+                  bobaos: bobaos,
                 );
               }
               if (info.type == "radio player") {
                 return AccRadioPlayer(info: info, bobaos: bobaos);
+              }
+              if (info.type == "thermostat basic") {
+                return AccThermostatBasic(
+                  info: info,
+                  bobaos: bobaos,
+                );
               }
             },
           ),

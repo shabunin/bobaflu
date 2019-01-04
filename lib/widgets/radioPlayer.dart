@@ -3,10 +3,6 @@ import 'package:flutter/material.dart';
 import '../classes/AccessoryInfo.dart';
 import '../bobaos.dart';
 
-// TODO: listile
-// TODO: onTap => play/pause
-// TODO: onLongTap => showDialog radio list
-
 class AccRadioPlayer extends StatefulWidget {
   // DONE: pass bobaos
   // DONE: state when update happened. info variable is a pointer to accessoryList[index]
@@ -31,7 +27,6 @@ class _AccRadioPlayer extends State<AccRadioPlayer> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     info = widget.info;
     bobaos = widget.bobaos;
@@ -80,7 +75,6 @@ class _AccRadioPlayer extends State<AccRadioPlayer> {
         });
       },
       onLongPress: () {
-        print("Radio player long press!");
         // DONE: dialog with radio list
         showDialog(
             context: context,
