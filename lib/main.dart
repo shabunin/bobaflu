@@ -206,14 +206,14 @@ class _AccessoryListPage extends State<AccessoryListPage> {
         if (statusValues is Map) {
           dynamic field = statusValues['field'];
           dynamic value = statusValues['value'];
-          accessoryList[index].currentState[field] = value;
+          accessoryList[index].updateCurrentState(field, value);
         }
         if (statusValues is List) {
           statusValues.forEach((statusValue) {
             if (statusValue is Map) {
               dynamic field = statusValue['field'];
               dynamic value = statusValue['value'];
-              accessoryList[index].currentState[field] = value;
+              accessoryList[index].updateCurrentState(field, value);
             }
           });
         }
@@ -222,6 +222,7 @@ class _AccessoryListPage extends State<AccessoryListPage> {
     });
 
     await bobaos.initWs();
+    print("BobaosWs ready ${widget.host}");
     bobaos.getAccessoryInfo(null, (bool err, Object payload) {
       if (err) {
         return print('error ocurred $payload');
@@ -239,14 +240,14 @@ class _AccessoryListPage extends State<AccessoryListPage> {
             if (statusValues is Map) {
               dynamic field = statusValues['field'];
               dynamic value = statusValues['value'];
-              f.currentState[field] = value;
+              f.updateCurrentState(field, value);
             }
             if (statusValues is List) {
               statusValues.forEach((statusValue) {
                 if (statusValue is Map) {
                   dynamic field = statusValue['field'];
                   dynamic value = statusValue['value'];
-                  f.currentState[field] = value;
+                  f.updateCurrentState(field, value);
                 }
               });
             }
