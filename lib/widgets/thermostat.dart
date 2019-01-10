@@ -53,53 +53,6 @@ class _AccThermostat extends State<AccThermostat> {
           trailing:
               new CircleAvatar(child: new Text("${info.currentState['mode']}")),
           onTap: () {
-            TextEditingController _c = new TextEditingController();
-
-            // TODO: open page
-            return showDialog(
-              context: context,
-              builder: (context) {
-                return new Dialog(
-                  child: new Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      new TextField(
-                        decoration: new InputDecoration(hintText: "100"),
-                        controller: _c,
-                      ),
-                      new FlatButton(
-                        child: new Text("Set"),
-                        onPressed: () {
-                          int setpoint = int.parse(_c.text);
-                          bobaos.controlAccessoryValue(
-                              info.id, {"setpoint": setpoint},
-                              (bool err, Object payload) {
-                            if (err) {
-                              return print('error ocurred $payload');
-                            }
-
-                            print(payload);
-                            Navigator.pop(context);
-                            bobaos
-                                .controlAccessoryValue(info.id, {"power": true},
-                                    (bool err, Object payload) {
-                              if (err) {
-                                return print('error ocurred $payload');
-                              }
-
-                              print(payload);
-                            });
-                          });
-                        },
-                      )
-                    ],
-                  ),
-                );
-              },
-            );
-          },
-          onLongPress: () {
             // TODO:  with additional funcs
             Navigator.of(context).push(MaterialPageRoute(
                 builder: (context) => AccThermostatControl(
@@ -129,30 +82,81 @@ class AccThermostatControl extends StatefulWidget {
 class _AccThermostatControl extends State<AccThermostatControl> {
   @override
   Widget build(BuildContext context) {
+    AccessoryInfo info = widget.info;
+    BobaosWs bobaos = widget.bobaos;
+    void changeSetpointBy(double value) {
+      bobaos.getStatusValue(info.id, "setpoint",
+              (bool err, Object payload) {
+            if (err) {
+              return print(
+                  'error ocurred $payload');
+            }
+
+            print(payload);
+            if (payload is Map) {
+              dynamic currentValue =
+              payload['status']['value'];
+              dynamic newValue = currentValue + value;
+              bobaos.controlAccessoryValue(
+                  info.id, {"setpoint": newValue},
+                      (bool err, Object payload) {
+                    if (err) {
+                      return print(
+                          'error ocurred $payload');
+                    }
+
+                    print(payload);
+                  });
+            }
+          });
+    }
     return new Scaffold(
         appBar: AppBar(
           title: Text(widget.info.name),
         ),
         body: ScopedModel<AccessoryInfo>(
-            model: widget.info,
+            model: info,
             child: ListView(
               children: <Widget>[
                 // setpoint
-                new Card(
-                    color: Colors.amber,
-                    child: Row(
-                      children: <Widget>[
-                        GestureDetector(
-                          child: Icon(Icons.remove_circle),
-                          onTap: () {},
-                        ),
-                        Text("22.0"),
-                        GestureDetector(
-                          child: Icon(Icons.add_circle),
-                          onTap: () {},
-                        )
-                      ],
-                    ))
+                SizedBox(
+                    height: 210,
+                    child: Card(
+                        color: Colors.amber,
+                        child: Row(
+                          children: <Widget>[
+                            Expanded(
+                              child: SizedBox(
+                                  height: 210,
+                                  child: InkWell(
+                                    child: Icon(Icons.remove_circle),
+                                    onTap: () {
+                                      changeSetpointBy(-0.5);
+                                    },
+                                  )),
+                            ),
+                            Expanded(child:
+                                ScopedModelDescendant<AccessoryInfo>(
+                                    builder: (context, child, model) {
+                              return Center(
+                                  child: Text(
+                                      "${model.currentState['setpoint']}",
+                                      style: TextStyle(
+                                          fontSize: 42,
+                                          fontWeight: FontWeight.w900)));
+                            })),
+                            Expanded(
+                              child: SizedBox(
+                                  height: 210,
+                                  child: InkWell(
+                                    child: Icon(Icons.add_circle),
+                                    onTap: () {
+                                      changeSetpointBy(0.5);
+                                    },
+                                  )),
+                            )
+                          ],
+                        )))
               ],
             )));
   }
