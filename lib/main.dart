@@ -8,6 +8,7 @@ import './widgets/switch.dart';
 import './widgets/radioPlayer.dart';
 import './widgets/temperatureSensor.dart';
 import './widgets/thermostatBasic.dart';
+import './widgets/thermostat.dart';
 
 void main() => runApp(MyApp());
 
@@ -220,6 +221,61 @@ class _AccessoryListPage extends State<AccessoryListPage> {
         setState(() {});
       }
     });
+    bobaos.registerListener("remove accessory", (dynamic payload) {
+      //{"method":"remove accessory","payload":"thermostat_1"}
+      void processOneAccessory(id) {
+        dynamic id = payload;
+        int index = accessoryList.indexWhere((f) => f.id == id);
+        if (index > -1) {
+          accessoryList.removeAt(index);
+        }
+      }
+      if (payload is List) {
+        payload.forEach((id) {
+          processOneAccessory(id);
+        });
+      } else {
+        processOneAccessory(payload);
+      }
+    });
+    bobaos.registerListener("clear accessories", (dynamic payload) {
+      setState(() {
+        accessoryList.clear();
+      });
+    });
+    bobaos.registerListener("add accessory", (dynamic payload) {
+      void processOneAccessory(payload) {
+        AccessoryInfo f = new AccessoryInfo(payload);
+        bobaos.getStatusValue(f.id, f.status, (bool err, dynamic payload) {
+          dynamic statusValues = payload['status'];
+          print("get all statuses!!");
+          print(statusValues.toString());
+          if (statusValues is Map) {
+            dynamic field = statusValues['field'];
+            dynamic value = statusValues['value'];
+            f.updateCurrentState(field, value);
+          }
+          if (statusValues is List) {
+            statusValues.forEach((statusValue) {
+              if (statusValue is Map) {
+                dynamic field = statusValue['field'];
+                dynamic value = statusValue['value'];
+                f.updateCurrentState(field, value);
+              }
+            });
+          }
+          setState(() {
+            accessoryList.add(f);
+          });
+        });
+      }
+
+      if (payload is List) {
+        payload.forEach((f) => processOneAccessory(f));
+      } else {
+        processOneAccessory(payload);
+      }
+    });
 
     await bobaos.initWs();
     print("BobaosWs ready ${widget.host}");
@@ -230,34 +286,32 @@ class _AccessoryListPage extends State<AccessoryListPage> {
 
       print(payload);
       List<Object> tmpList = payload;
-      setState(() {
-        tmpList.forEach((t) {
-          AccessoryInfo f = new AccessoryInfo(t);
-          bobaos.getStatusValue(f.id, f.status, (bool err, dynamic payload) {
-            dynamic statusValues = payload['status'];
-            print("get all statuses!!");
-            print(statusValues.toString());
-            if (statusValues is Map) {
-              dynamic field = statusValues['field'];
-              dynamic value = statusValues['value'];
-              f.updateCurrentState(field, value);
-            }
-            if (statusValues is List) {
-              statusValues.forEach((statusValue) {
-                if (statusValue is Map) {
-                  dynamic field = statusValue['field'];
-                  dynamic value = statusValue['value'];
-                  f.updateCurrentState(field, value);
-                }
-              });
-            }
-            setState(() {
-              accessoryList.add(f);
+      tmpList.forEach((t) {
+        AccessoryInfo f = new AccessoryInfo(t);
+        bobaos.getStatusValue(f.id, f.status, (bool err, dynamic payload) {
+          dynamic statusValues = payload['status'];
+          print("get all statuses!!");
+          print(statusValues.toString());
+          if (statusValues is Map) {
+            dynamic field = statusValues['field'];
+            dynamic value = statusValues['value'];
+            f.updateCurrentState(field, value);
+          }
+          if (statusValues is List) {
+            statusValues.forEach((statusValue) {
+              if (statusValue is Map) {
+                dynamic field = statusValue['field'];
+                dynamic value = statusValue['value'];
+                f.updateCurrentState(field, value);
+              }
             });
+          }
+          setState(() {
+            accessoryList.add(f);
           });
         });
-        // get status values for each accessory
       });
+      // get status values for each accessory
     });
   }
 
@@ -280,6 +334,8 @@ class _AccessoryListPage extends State<AccessoryListPage> {
             ),
           ),
           body: ListView.builder(
+            shrinkWrap: true,
+//            itemCount: accessoryList.length,
             itemCount: accessoryList.length,
             itemBuilder: (BuildContext ctx, int index) {
               AccessoryInfo info = accessoryList[index];
@@ -304,8 +360,48 @@ class _AccessoryListPage extends State<AccessoryListPage> {
                   bobaos: bobaos,
                 );
               }
+              if (info.type == "thermostat") {
+                return AccThermostat(
+                  info: info,
+                  bobaos: bobaos,
+                );
+              }
             },
           ),
         ));
   }
 }
+
+//body: ListView.builder(
+//itemCount: accessoryList.length,
+//itemBuilder: (BuildContext ctx, int index) {
+//AccessoryInfo info = accessoryList[index];
+//if (info.type == "switch") {
+//return AccSwitch(
+//info: info,
+//bobaos: bobaos,
+//);
+//}
+//if (info.type == "temperature sensor") {
+//return AccTemperatureSensor(
+//info: info,
+//bobaos: bobaos,
+//);
+//}
+//if (info.type == "radio player") {
+//return AccRadioPlayer(info: info, bobaos: bobaos);
+//}
+//if (info.type == "thermostat basic") {
+//return AccThermostatBasic(
+//info: info,
+//bobaos: bobaos,
+//);
+//}
+//if (info.type == "thermostat") {
+//return AccThermostat(
+//info: info,
+//bobaos: bobaos,
+//);
+//}
+//},
+//),

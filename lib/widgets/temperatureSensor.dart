@@ -34,27 +34,30 @@ class _AccTemperatureSensor extends State<AccTemperatureSensor> {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      selected: false,
-      leading: new Icon(Icons.ac_unit),
-      title: new Text("${info.name}"),
-      trailing: new Text("${info.currentState['current']}"),
-      onTap: () {
-        // send read request on tap
-        setState(() {
-          bobaos.controlAccessoryValue(info.id, {"read": true},
-              (bool err, Object payload) {
-            if (err) {
-              return print('error ocurred $payload');
-            }
+    var cardColor = Theme.of(context).cardColor;
+    return Card(
+        color: cardColor,
+        child: ListTile(
+          selected: false,
+          leading: new Icon(Icons.ac_unit),
+          title: new Text("${info.name}"),
+          trailing: new Text("${info.currentState['current']}"),
+          onTap: () {
+            // send read request on tap
+            setState(() {
+              bobaos.controlAccessoryValue(info.id, {"read": true},
+                  (bool err, Object payload) {
+                if (err) {
+                  return print('error ocurred $payload');
+                }
 
-            print(payload);
-          });
-        });
-      },
-      onLongPress: () {
-        // TODO: dialog with additional funcs
-      },
-    );
+                print(payload);
+              });
+            });
+          },
+          onLongPress: () {
+            // TODO: dialog with additional funcs
+          },
+        ));
   }
 }

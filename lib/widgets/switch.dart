@@ -34,48 +34,59 @@ class _AccSwitch extends State<AccSwitch> {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      selected: false,
-      leading: new Icon(Icons.lightbulb_outline),
-      title: new Text("${info.name}: ${info.currentState['state'].toString()}"),
-      trailing: new Switch(
-          activeColor: Colors.redAccent,
-          activeTrackColor: Colors.teal,
-          value: info.currentState['state'] is bool
-              ? info.currentState['state']
-              : false,
-          onChanged: null),
-      onTap: () {
-        setState(() {
-          bobaos.getStatusValue(info.id, "state", (bool err, Object payload) {
-            if (err) {
-              return print('error ocurred $payload');
-            }
-
-            print(payload);
-            if (payload is Map) {
-              dynamic currentValue = payload['status']['value'];
-              bool newValue;
-              if (currentValue is bool) {
-                newValue = !currentValue;
-              } else {
-                newValue = false;
-              }
-              bobaos.controlAccessoryValue(info.id, {"state": newValue},
+    var cardColor = Theme.of(context).cardColor;
+    dynamic switchState = info.currentState['state'];
+    if (switchState is bool) {
+      if (switchState) {
+        cardColor = Colors.deepPurple;
+      } else {
+        cardColor = Theme.of(context).cardColor;
+      }
+    }
+    return new Card(
+        color: cardColor,
+        child: ListTile(
+          selected: false,
+          leading: new Icon(Icons.lightbulb_outline),
+          title: new Text(
+              "${info.name}"),
+          trailing: new Switch(
+              value: switchState is bool
+                  ? switchState
+                  : false,
+              onChanged: (bool state) {}),
+          onTap: () {
+            setState(() {
+              bobaos.getStatusValue(info.id, "state",
                   (bool err, Object payload) {
                 if (err) {
                   return print('error ocurred $payload');
                 }
 
                 print(payload);
+                if (payload is Map) {
+                  dynamic currentValue = payload['status']['value'];
+                  bool newValue;
+                  if (currentValue is bool) {
+                    newValue = !currentValue;
+                  } else {
+                    newValue = false;
+                  }
+                  bobaos.controlAccessoryValue(info.id, {"state": newValue},
+                      (bool err, Object payload) {
+                    if (err) {
+                      return print('error ocurred $payload');
+                    }
+
+                    print(payload);
+                  });
+                }
               });
-            }
-          });
-        });
-      },
-      onLongPress: () {
-        // TODO: dialog with additional funcs
-      },
-    );
+            });
+          },
+          onLongPress: () {
+            // TODO: dialog with additional funcs
+          },
+        ));
   }
 }
