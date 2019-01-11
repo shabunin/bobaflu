@@ -68,7 +68,7 @@ class _AccThermostat extends State<AccThermostat> {
               "${info.currentState['current temperature']} >> ${info.currentState['setpoint']}"),
           trailing: new CircleAvatar(child: new Text("${currentMode[0]}")),
           onTap: () {
-            // TODO:  with additional funcs
+            // DONE: open control page
             Navigator.of(context).push(MaterialPageRoute(
                 builder: (context) => AccThermostatControl(
                       info: info,
@@ -282,10 +282,3 @@ class _AccThermostatControl extends State<AccThermostatControl> {
             )));
   }
 }
-
-//    return new ScopedModel<AccessoryInfo>(
-//      model: widget.info,
-//      child: new ScopedModelDescendant<AccessoryInfo>(builder: (context, child, model) {
-//
-//      }, child: new )
-//    );

@@ -118,34 +118,34 @@ class AccRadioPlayerControl extends StatefulWidget {
 class _AccRadioPlayerControl extends State<AccRadioPlayerControl> {
   @override
   Widget build(BuildContext context) {
-    List<dynamic> radioList = widget.info.currentState['radio list'];
+    AccessoryInfo info = wiidget.info;
+    BobaosWs bobaos = widget.bobaos;
     return new Scaffold(
         appBar: AppBar(
-          title: Text(widget.info.name),
+          title: Text(info.name),
         ),
         body: ScopedModel<AccessoryInfo>(
-            model: widget.info,
-            child: ListView.builder(
-                itemCount: radioList.length,
-                itemBuilder: (BuildContext ctx, int index) {
-                  return new ScopedModelDescendant<AccessoryInfo>(
-                      builder: (context, child, model) {
+            model: info,
+            child: ScopedModelDescendant<AccessoryInfo>(
+                builder: (context, child, model) {
+              List<dynamic> radioList = model.currentState['radio list'];
+              return ListView.builder(
+                  itemCount: radioList.length,
+                  itemBuilder: (BuildContext ctx, int index) {
                     return new RadioListTile(
-                        title: Text(
-                            model.currentState['radio list'][index]['name']),
-                        value: model.currentState['radio list'][index]['id'],
+                        title: Text(radioList[index]['name']),
+                        value: radioList[index]['id'],
                         groupValue: model.currentState['station'],
                         onChanged: (v) {
                           print(v);
-                          widget.bobaos
-                              .controlAccessoryValue(model.id, {"station": v},
-                                  (bool err, Object payload) {
+                          bobaos.controlAccessoryValue(model.id, {"station": v},
+                              (bool err, Object payload) {
                             if (err) {
                               return print('error ocurred $payload');
                             }
                           });
                         });
                   });
-                })));
+            })));
   }
 }
