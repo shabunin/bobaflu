@@ -21,7 +21,7 @@ dependencies:
   cupertino_icons: ^0.1.2
   mdns:
     git:
-      url: git://github.com/fabricio-godoi/flutter_mdns.git
+      url: git://github.com/julianscheel/flutter_mdns.git
   scoped_model: ^1.0.1
 
 dev_dependencies:

@@ -64,8 +64,7 @@ class _AccThermostat extends State<AccThermostat> {
           selected: false,
           leading: new Icon(Icons.ac_unit),
           title: new Text("${info.name}"),
-          subtitle: new Text(
-              "${info.currentState['current temperature']} >> ${info.currentState['setpoint']}"),
+          subtitle: new Text("${info.currentState['current temperature']} >> ${info.currentState['setpoint']}"),
           trailing: new CircleAvatar(child: new Text("${currentMode[0]}")),
           onTap: () {
             // DONE: open control page
@@ -109,8 +108,7 @@ class _AccThermostatControl extends State<AccThermostatControl> {
         if (payload is Map) {
           dynamic currentValue = payload['status']['value'];
           dynamic newValue = currentValue + value;
-          bobaos.controlAccessoryValue(info.id, {"setpoint": newValue},
-              (bool err, Object payload) {
+          bobaos.controlAccessoryValue(info.id, {"setpoint": newValue}, (bool err, Object payload) {
             if (err) {
               return print('error ocurred $payload');
             }
@@ -129,8 +127,7 @@ class _AccThermostatControl extends State<AccThermostatControl> {
             model: info,
             child: ListView(
               children: <Widget>[
-                ScopedModelDescendant<AccessoryInfo>(
-                    builder: (context, child, model) {
+                ScopedModelDescendant<AccessoryInfo>(builder: (context, child, model) {
                   var cardColor;
                   dynamic currentMode = model.currentState['mode'];
                   switch (currentMode) {
@@ -155,11 +152,8 @@ class _AccThermostatControl extends State<AccThermostatControl> {
                         child: Card(
                             color: cardColor,
                             child: Center(
-                                child: Text(
-                                    "Temperature now: ${model.currentState['current temperature']}",
-                                    style: TextStyle(
-                                        fontSize: 21,
-                                        fontWeight: FontWeight.w700))))),
+                                child: Text("Temperature now: ${model.currentState['current temperature']}",
+                                    style: TextStyle(fontSize: 21, fontWeight: FontWeight.w700))))),
 
                     // setpoint
                     SizedBox(
@@ -180,18 +174,11 @@ class _AccThermostatControl extends State<AccThermostatControl> {
                                 ),
                                 Column(
                                   children: <Widget>[
-                                    Text("Setpoint:",
-                                        style: TextStyle(
-                                            fontSize: 21,
-                                            fontWeight: FontWeight.w900)),
+                                    Text("Setpoint:", style: TextStyle(fontSize: 21, fontWeight: FontWeight.w900)),
                                     Expanded(
                                       child: Center(
-                                          child: Text(
-                                              "${model.currentState['setpoint']}",
-                                              style: TextStyle(
-                                                  fontSize: 42,
-                                                  fontWeight:
-                                                      FontWeight.w900))),
+                                          child: Text("${model.currentState['setpoint']}",
+                                              style: TextStyle(fontSize: 42, fontWeight: FontWeight.w900))),
                                     )
                                   ],
                                 ),
@@ -211,8 +198,7 @@ class _AccThermostatControl extends State<AccThermostatControl> {
                 }),
 
                 // modes
-                ScopedModelDescendant<AccessoryInfo>(
-                    builder: (context, child, model) {
+                ScopedModelDescendant<AccessoryInfo>(builder: (context, child, model) {
                   dynamic currentMode = model.currentState['mode'];
                   List<dynamic> modes = model.currentState['modes available'];
                   return SizedBox(
@@ -226,9 +212,7 @@ class _AccThermostatControl extends State<AccThermostatControl> {
                                 value: modes[index],
                                 groupValue: currentMode,
                                 onChanged: (dynamic value) {
-                                  bobaos.controlAccessoryValue(
-                                      info.id, {"mode": value},
-                                      (bool err, Object payload) {
+                                  bobaos.controlAccessoryValue(info.id, {"mode": value}, (bool err, Object payload) {
                                     if (err) {
                                       return print('error ocurred $payload');
                                     }
@@ -243,26 +227,18 @@ class _AccThermostatControl extends State<AccThermostatControl> {
                 }),
 
                 // sensors
-                ScopedModelDescendant<AccessoryInfo>(
-                    builder: (context, child, model) {
+                ScopedModelDescendant<AccessoryInfo>(builder: (context, child, model) {
                   return Row(
                     children: <Widget>[
-                      Expanded(
-                          child: Text(
-                              "Temperature: ${model.currentState['sensors']['temperature']}")),
-                      Expanded(
-                          child: Text(
-                              "Humidity: ${model.currentState['sensors']['humidity']}")),
-                      Expanded(
-                          child: Text(
-                              "CO2: ${model.currentState['sensors']['co2']}")),
+                      Expanded(child: Text("Temperature: ${model.currentState['sensors']['temperature']}")),
+                      Expanded(child: Text("Humidity: ${model.currentState['sensors']['humidity']}")),
+                      Expanded(child: Text("CO2: ${model.currentState['sensors']['co2']}")),
                     ],
                   );
                 }),
 
                 // error state
-                ScopedModelDescendant<AccessoryInfo>(
-                    builder: (context, child, model) {
+                ScopedModelDescendant<AccessoryInfo>(builder: (context, child, model) {
                   var errorState = model.currentState['error state']['error'];
                   if (errorState is bool) {
                     if (errorState) {
@@ -270,8 +246,7 @@ class _AccThermostatControl extends State<AccThermostatControl> {
                           color: Colors.red,
                           child: Text(
                             "${model.currentState['error state']['message']}",
-                            style: TextStyle(
-                                fontSize: 42, fontWeight: FontWeight.w900),
+                            style: TextStyle(fontSize: 42, fontWeight: FontWeight.w900),
                           ));
                     }
                   }

@@ -227,7 +227,9 @@ class _AccessoryListPage extends State<AccessoryListPage> {
         dynamic id = payload;
         int index = accessoryList.indexWhere((f) => f.id == id);
         if (index > -1) {
-          accessoryList.removeAt(index);
+          setState(() {
+            accessoryList.removeAt(index);
+          });
         }
       }
       if (payload is List) {
