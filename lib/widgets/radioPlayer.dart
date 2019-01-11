@@ -118,7 +118,7 @@ class AccRadioPlayerControl extends StatefulWidget {
 class _AccRadioPlayerControl extends State<AccRadioPlayerControl> {
   @override
   Widget build(BuildContext context) {
-    AccessoryInfo info = wiidget.info;
+    AccessoryInfo info = widget.info;
     BobaosWs bobaos = widget.bobaos;
     return new Scaffold(
         appBar: AppBar(
