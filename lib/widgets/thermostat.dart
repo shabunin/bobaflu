@@ -253,6 +253,21 @@ class _AccThermostatControl extends State<AccThermostatControl> {
 
                   return new Container();
                 }),
+
+                // status messages
+                ScopedModelDescendant<AccessoryInfo>(builder: (context, child, model) {
+                  List<dynamic> messages = model.currentState['status messages'];
+                  return SizedBox(
+                      height: 142,
+                      child: Card(
+                          color: Colors.teal,
+                          child: ListView.builder(
+                              scrollDirection: Axis.vertical,
+                              itemCount: messages.length,
+                              itemBuilder: (BuildContext ctx, int index) {
+                                return Text("${messages[index]}");
+                              })));
+                }),
               ],
             )));
   }
