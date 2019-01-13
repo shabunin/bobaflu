@@ -27,4 +27,8 @@ class AccessoryInfo extends Model {
     currentState[key] = value;
     notifyListeners();
   }
+
+  void notify() {
+    notifyListeners();
+  }
 }

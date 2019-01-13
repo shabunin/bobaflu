@@ -1,88 +1,70 @@
 import 'package:flutter/material.dart';
+import 'package:scoped_model/scoped_model.dart';
 
 import '../classes/AccessoryInfo.dart';
 import '../bobaos.dart';
 
-class AccSwitch extends StatefulWidget {
-  // DONE: pass bobaos
-  // DONE: state when update happened. info variable is a pointer to accessoryList[index]
-
-  AccSwitch({Key key, this.info, this.bobaos}) : super(key: key);
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
+class AccSwitch extends StatelessWidget {
+  AccSwitch({
+    Key key,
+    this.info,
+    this.bobaos,
+  }) : super(key: key);
 
   final AccessoryInfo info;
   final BobaosWs bobaos;
 
   @override
-  _AccSwitch createState() => _AccSwitch();
-}
-
-class _AccSwitch extends State<AccSwitch> {
-  AccessoryInfo info;
-  BobaosWs bobaos;
-
-  @override
-  void initState() {
-    super.initState();
-    info = widget.info;
-    bobaos = widget.bobaos;
-  }
-
-  @override
   Widget build(BuildContext context) {
-    var cardColor = Theme.of(context).cardColor;
-    dynamic switchState = info.currentState['state'];
-    if (switchState is bool) {
-      if (switchState) {
-        cardColor = Colors.deepPurple;
-      } else {
-        cardColor = Theme.of(context).cardColor;
-      }
-    }
-    return new Card(
-        color: cardColor,
-        child: ListTile(
-          selected: false,
-          leading: new Icon(Icons.lightbulb_outline),
-          title: new Text("${info.name}"),
-          trailing: new Switch(value: switchState is bool ? switchState : false, onChanged: (bool state) {}),
-          onTap: () {
-            setState(() {
-              // get status value at first
-              bobaos.getStatusValue(info.id, "state", (bool err, Object payload) {
-                if (err) {
-                  return print('error ocurred $payload');
-                }
-
-                print(payload);
-                if (payload is Map) {
-                  dynamic currentValue = payload['status']['value'];
-                  bool newValue;
-                  if (currentValue is bool) {
-                    // invert
-                    newValue = !currentValue;
-                  } else {
-                    newValue = false;
-                  }
-                  // then send new value
-                  bobaos.controlAccessoryValue(info.id, {"state": newValue}, (bool err, Object payload) {
+    return new ScopedModel<AccessoryInfo>(
+        model: info,
+        child: ScopedModelDescendant<AccessoryInfo>(builder: (context, child, model) {
+          var cardColor = Theme.of(context).cardColor;
+          dynamic switchState = model.currentState['state'];
+          if (switchState is bool) {
+            if (switchState) {
+              cardColor = Colors.deepPurple;
+            } else {
+              cardColor = Theme.of(context).cardColor;
+            }
+          }
+          return Card(
+              color: cardColor,
+              child: ListTile(
+                selected: false,
+                leading: new Icon(Icons.lightbulb_outline),
+                title: new Text("${model.name}"),
+                //                trailing: new Switch(value: switchState is bool ? switchState : false, onChanged: (bool state) {
+                //                }),
+                onTap: () {
+                  // get status value at first
+                  bobaos.getStatusValue(model.id, "state", (bool err, Object payload) {
                     if (err) {
                       return print('error ocurred $payload');
                     }
 
-                    print(payload);
+                    if (payload is Map) {
+                      dynamic currentValue = payload['status']['value'];
+                      bool newValue;
+                      if (currentValue is bool) {
+                        // invert
+                        newValue = !currentValue;
+                      } else {
+                        newValue = false;
+                      }
+                      // then send new value
+                      bobaos.controlAccessoryValue(model.id, {"state": newValue}, (bool err, Object payload) {
+                        if (err) {
+                          return print('error ocurred $payload');
+                        }
+                      });
+                    }
                   });
-                }
-              });
-            });
-          },
-          onLongPress: () {
-            // TODO: dialog with additional funcs
-          },
-        ));
+                },
+                onLongPress: () {
+                  // TODO: dialog with additional funcs
+                },
+              ));
+        }));
   }
 }

@@ -7,7 +7,6 @@ import './bobaos.dart';
 import './widgets/switch.dart';
 import './widgets/radioPlayer.dart';
 import './widgets/temperatureSensor.dart';
-import './widgets/thermostatBasic.dart';
 import './widgets/thermostat.dart';
 
 void main() => runApp(MyApp());
@@ -190,28 +189,23 @@ class _AccessoryListPage extends State<AccessoryListPage> {
     // register listeners to update accessories list/update accessories status
     bobaos.removeAllListeners();
     bobaos.registerListener("update status value", (dynamic payload) {
-      print("update status value event");
-      print(payload);
       dynamic id = payload['id'];
       // find accessory in list and update state
       int index = accessoryList.indexWhere((f) => f.id == id);
       if (index > -1) {
-        print("inde > -1: $index}");
-        AccessoryInfo info = accessoryList[index];
-        print(info);
+        void updateOneField(dynamic payload) {
+          dynamic field = payload['field'];
+          dynamic value = payload['value'];
+          accessoryList[index].updateCurrentState(field, value);
+        }
+
         dynamic statusValues = payload['status'];
         if (statusValues is Map) {
-          dynamic field = statusValues['field'];
-          dynamic value = statusValues['value'];
-          accessoryList[index].updateCurrentState(field, value);
+          updateOneField(statusValues);
         }
         if (statusValues is List) {
           statusValues.forEach((statusValue) {
-            if (statusValue is Map) {
-              dynamic field = statusValue['field'];
-              dynamic value = statusValue['value'];
-              accessoryList[index].updateCurrentState(field, value);
-            }
+            updateOneField(statusValue);
           });
         }
         setState(() {});
@@ -245,10 +239,9 @@ class _AccessoryListPage extends State<AccessoryListPage> {
     bobaos.registerListener("add accessory", (dynamic payload) {
       void processOneAccessory(payload) {
         AccessoryInfo f = new AccessoryInfo(payload);
+        // get all status values
         bobaos.getStatusValue(f.id, f.status, (bool err, dynamic payload) {
           dynamic statusValues = payload['status'];
-          print("get all statuses!!");
-          print(statusValues.toString());
           if (statusValues is Map) {
             dynamic field = statusValues['field'];
             dynamic value = statusValues['value'];
@@ -284,15 +277,12 @@ class _AccessoryListPage extends State<AccessoryListPage> {
         return print('error ocurred $payload');
       }
 
-      print(payload);
       List<Object> tmpList = payload;
       tmpList.forEach((t) {
         AccessoryInfo f = new AccessoryInfo(t);
         // now get all status values for each accessory
         bobaos.getStatusValue(f.id, f.status, (bool err, dynamic payload) {
           dynamic statusValues = payload['status'];
-          print("get all statuses!!");
-          print(statusValues.toString());
           if (statusValues is Map) {
             dynamic field = statusValues['field'];
             dynamic value = statusValues['value'];
@@ -356,12 +346,6 @@ class _AccessoryListPage extends State<AccessoryListPage> {
               }
               if (info.type == "radio player") {
                 return AccRadioPlayer(info: info, bobaos: bobaos);
-              }
-              if (info.type == "thermostat basic") {
-                return AccThermostatBasic(
-                  info: info,
-                  bobaos: bobaos,
-                );
               }
               if (info.type == "thermostat") {
                 return AccThermostat(

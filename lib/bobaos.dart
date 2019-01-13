@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -32,15 +31,13 @@ class BobaosWs {
 
   void emitEvent(String name, dynamic params) {
     // call all listeners
-    List<BobaosCallback> foundCallbacks =
-    this._events.where((t) => t.name == name).toList();
+    List<BobaosCallback> foundCallbacks = this._events.where((t) => t.name == name).toList();
     foundCallbacks.forEach((f) => f.cb(params));
   }
 
   void initWs() async {
     try {
       this.ws = await WebSocket.connect(this.url);
-      print("readyState: ${this.ws.readyState}");
       this.listen();
     } catch (e) {
       print(e);
@@ -49,7 +46,7 @@ class BobaosWs {
 
   void closeWs() async {
     try {
-      print("closin websocket");
+      print("BobaosWs: closin websocket");
       this.removeAllListeners();
       await this.ws.close(1, "done");
     } catch (e) {
@@ -70,7 +67,6 @@ class BobaosWs {
             cb(true, json['payload']);
           }
           this._reqs.remove(response_id);
-          //print('after removing ${this._reqs}');
         }
       } else {
         // broadcasted event
@@ -80,7 +76,6 @@ class BobaosWs {
   }
 
   void getGeneralInfo(Function cb) async {
-    print("readyState: ${this.ws.readyState}");
     if (this.ws.readyState == 0) {
       await this.initWs();
     }
@@ -90,13 +85,11 @@ class BobaosWs {
     obj2send["request_id"] = request_id;
     obj2send["method"] = "get general info";
     obj2send["payload"] = null;
-    print('sending ${jsonEncode(obj2send)}');
     this.ws.add(jsonEncode(obj2send));
     this._reqs[request_id] = cb;
   }
 
   void getAccessoryInfo(dynamic id, Function cb) async {
-    print("readyState: ${this.ws.readyState}");
     if (this.ws.readyState == 0) {
       await this.initWs();
     }
@@ -106,13 +99,11 @@ class BobaosWs {
     obj2send["request_id"] = request_id;
     obj2send["method"] = "get accessory info";
     obj2send["payload"] = id;
-    print('sending ${jsonEncode(obj2send)}');
     this.ws.add(jsonEncode(obj2send));
     this._reqs[request_id] = cb;
   }
 
   void getStatusValue(dynamic id, dynamic status, Function cb) async {
-    print("readyState: ${this.ws.readyState}");
     if (this.ws.readyState == 0) {
       await this.initWs();
     }
@@ -134,14 +125,11 @@ class BobaosWs {
       payload['status'] = status;
     }
     obj2send["payload"] = payload;
-    print('sending ${jsonEncode(obj2send)}');
     this.ws.add(jsonEncode(obj2send));
     this._reqs[request_id] = cb;
   }
 
-  void controlAccessoryValue(
-      dynamic id, Map<dynamic, dynamic> value, Function cb) async {
-    print("readyState: ${this.ws.readyState}");
+  void controlAccessoryValue(dynamic id, Map<dynamic, dynamic> value, Function cb) async {
     if (this.ws.readyState == 0) {
       await this.initWs();
     }
@@ -163,7 +151,6 @@ class BobaosWs {
       payload["control"] = valueList;
     }
     obj2send["payload"] = payload;
-    print('sending ${jsonEncode(obj2send)}');
     this.ws.add(jsonEncode(obj2send));
     this._reqs[request_id] = cb;
   }
