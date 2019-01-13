@@ -75,14 +75,12 @@ class _MyHomePageState extends State<MyHomePage> {
     }, onResolved: (ServiceInfo info) {
       print("Resolved Service ${info.toString()}");
       setState(() {
-        BobaosFound bobaosFoundItem =
-            new BobaosFound(info.name, info.host, info.port);
+        BobaosFound bobaosFoundItem = new BobaosFound(info.name, info.host, info.port);
         litems.add(bobaosFoundItem);
       });
     }, onLost: (ServiceInfo info) {
       print("Lost Service ${info.toString()}");
-      int index =
-          litems.indexWhere((BobaosFound item) => item.name == info.name);
+      int index = litems.indexWhere((BobaosFound item) => item.name == info.name);
       setState(() {
         litems.removeAt(index);
       });
@@ -115,8 +113,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     new TextField(
-                      decoration:
-                          new InputDecoration(hintText: "10.0.42.33:49190"),
+                      decoration: new InputDecoration(hintText: "10.0.42.33:49190"),
                       controller: _c,
                     ),
                     new FlatButton(
@@ -125,8 +122,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => AccessoryListPage(
-                                  title: "/${_c.text}", host: "/${_c.text}")),
+                              builder: (context) => AccessoryListPage(title: "/${_c.text}", host: "/${_c.text}")),
                         );
                       },
                     )
@@ -153,10 +149,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   context,
                   MaterialPageRoute(
                       builder: (context) => AccessoryListPage(
-                          title:
-                              "${litems[index].host}:${litems[index].port.toString()}",
-                          host:
-                              "${litems[index].host}:${litems[index].port.toString()}")),
+                          title: "${litems[index].host}:${litems[index].port.toString()}",
+                          host: "${litems[index].host}:${litems[index].port.toString()}")),
                 );
               });
         },
@@ -191,7 +185,9 @@ class _AccessoryListPage extends State<AccessoryListPage> {
   }
 
   initBobaos() async {
+    // first, connect to bobaoskit.worker then get all accessories
     bobaos = new BobaosWs("ws:/${widget.host}");
+    // register listeners to update accessories list/update accessories status
     bobaos.removeAllListeners();
     bobaos.registerListener("update status value", (dynamic payload) {
       print("update status value event");
@@ -232,6 +228,7 @@ class _AccessoryListPage extends State<AccessoryListPage> {
           });
         }
       }
+
       if (payload is List) {
         payload.forEach((id) {
           processOneAccessory(id);
@@ -281,6 +278,7 @@ class _AccessoryListPage extends State<AccessoryListPage> {
 
     await bobaos.initWs();
     print("BobaosWs ready ${widget.host}");
+    // get list of all accessories
     bobaos.getAccessoryInfo(null, (bool err, Object payload) {
       if (err) {
         return print('error ocurred $payload');
@@ -290,6 +288,7 @@ class _AccessoryListPage extends State<AccessoryListPage> {
       List<Object> tmpList = payload;
       tmpList.forEach((t) {
         AccessoryInfo f = new AccessoryInfo(t);
+        // now get all status values for each accessory
         bobaos.getStatusValue(f.id, f.status, (bool err, dynamic payload) {
           dynamic statusValues = payload['status'];
           print("get all statuses!!");
@@ -308,12 +307,13 @@ class _AccessoryListPage extends State<AccessoryListPage> {
               }
             });
           }
+          // add to accessory list and update state of widget
+          // so, accessories will be shown on page
           setState(() {
             accessoryList.add(f);
           });
         });
       });
-      // get status values for each accessory
     });
   }
 
@@ -335,12 +335,13 @@ class _AccessoryListPage extends State<AccessoryListPage> {
               },
             ),
           ),
+          // this is list of accessories
           body: ListView.builder(
             shrinkWrap: true,
-//            itemCount: accessoryList.length,
             itemCount: accessoryList.length,
             itemBuilder: (BuildContext ctx, int index) {
               AccessoryInfo info = accessoryList[index];
+              // depends on type
               if (info.type == "switch") {
                 return AccSwitch(
                   info: info,
@@ -373,37 +374,3 @@ class _AccessoryListPage extends State<AccessoryListPage> {
         ));
   }
 }
-
-//body: ListView.builder(
-//itemCount: accessoryList.length,
-//itemBuilder: (BuildContext ctx, int index) {
-//AccessoryInfo info = accessoryList[index];
-//if (info.type == "switch") {
-//return AccSwitch(
-//info: info,
-//bobaos: bobaos,
-//);
-//}
-//if (info.type == "temperature sensor") {
-//return AccTemperatureSensor(
-//info: info,
-//bobaos: bobaos,
-//);
-//}
-//if (info.type == "radio player") {
-//return AccRadioPlayer(info: info, bobaos: bobaos);
-//}
-//if (info.type == "thermostat basic") {
-//return AccThermostatBasic(
-//info: info,
-//bobaos: bobaos,
-//);
-//}
-//if (info.type == "thermostat") {
-//return AccThermostat(
-//info: info,
-//bobaos: bobaos,
-//);
-//}
-//},
-//),

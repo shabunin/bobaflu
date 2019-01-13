@@ -41,6 +41,8 @@ class _AccThermostat extends State<AccThermostat> {
   Widget build(BuildContext context) {
     var cardColor = Theme.of(context).cardColor;
     dynamic currentMode = info.currentState['mode'];
+    // ok
+    // now card color depends on working mode
     switch (currentMode) {
       case "off":
         cardColor = Colors.grey;
@@ -67,7 +69,7 @@ class _AccThermostat extends State<AccThermostat> {
           subtitle: new Text("${info.currentState['current temperature']} >> ${info.currentState['setpoint']}"),
           trailing: new CircleAvatar(child: new Text("${currentMode[0]}")),
           onTap: () {
-            // DONE: open control page
+            // on tap open control page
             Navigator.of(context).push(MaterialPageRoute(
                 builder: (context) => AccThermostatControl(
                       info: info,
@@ -81,11 +83,6 @@ class _AccThermostat extends State<AccThermostat> {
 class AccThermostatControl extends StatefulWidget {
   AccThermostatControl({Key key, this.info, this.bobaos}) : super(key: key);
 
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
   final AccessoryInfo info;
   final BobaosWs bobaos;
 
@@ -98,6 +95,8 @@ class _AccThermostatControl extends State<AccThermostatControl> {
   Widget build(BuildContext context) {
     AccessoryInfo info = widget.info;
     BobaosWs bobaos = widget.bobaos;
+
+    // to control setpoint value
     void changeSetpointBy(double value) {
       bobaos.getStatusValue(info.id, "setpoint", (bool err, Object payload) {
         if (err) {
@@ -125,8 +124,10 @@ class _AccThermostatControl extends State<AccThermostatControl> {
         ),
         body: ScopedModel<AccessoryInfo>(
             model: info,
+            // list of cards
             child: ListView(
               children: <Widget>[
+                // current temp and setpoint
                 ScopedModelDescendant<AccessoryInfo>(builder: (context, child, model) {
                   var cardColor;
                   dynamic currentMode = model.currentState['mode'];
@@ -238,6 +239,7 @@ class _AccThermostatControl extends State<AccThermostatControl> {
                 }),
 
                 // error state
+                // as an example I made switching to heat mode giving error
                 ScopedModelDescendant<AccessoryInfo>(builder: (context, child, model) {
                   var errorState = model.currentState['error state']['error'];
                   if (errorState is bool) {
@@ -255,6 +257,7 @@ class _AccThermostatControl extends State<AccThermostatControl> {
                 }),
 
                 // status messages
+                // other messages can be used to describe current state of device, like fancoils are on, etc
                 ScopedModelDescendant<AccessoryInfo>(builder: (context, child, model) {
                   List<dynamic> messages = model.currentState['status messages'];
                   return SizedBox(

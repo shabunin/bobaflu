@@ -1,5 +1,8 @@
 import 'package:scoped_model/scoped_model.dart';
 
+// AccessoryInfo extends Model
+// so, when accessory value is updated it descends down to
+// all widgets inside ScopedModelDescendant
 class AccessoryInfo extends Model {
   dynamic id;
   dynamic type;

@@ -35,17 +35,18 @@ class _AccRadioPlayer extends State<AccRadioPlayer> {
 
   @override
   Widget build(BuildContext context) {
+    // here is list tile for accessory list
     dynamic cardColor = Theme.of(context).cardColor;
     dynamic playing = info.currentState['playing'];
     dynamic stationId = info.currentState['station'];
     List<dynamic> radioList = info.currentState['radio list'];
     dynamic stationTitle = "";
+    // different card color depending on state
     if (playing is bool) {
       if (playing) {
         cardColor = Colors.amber;
         // find station in list
-        dynamic stationItemIndex =
-            radioList.indexWhere((t) => t['id'] == stationId);
+        dynamic stationItemIndex = radioList.indexWhere((t) => t['id'] == stationId);
         if (stationItemIndex > -1) {
           stationTitle = radioList[stationItemIndex]['name'];
         }
@@ -62,8 +63,8 @@ class _AccRadioPlayer extends State<AccRadioPlayer> {
           subtitle: Text(stationTitle),
           onTap: () {
             setState(() {
-              bobaos.getStatusValue(info.id, "playing",
-                  (bool err, Object payload) {
+              // so, on tap it receives current playing state at first
+              bobaos.getStatusValue(info.id, "playing", (bool err, Object payload) {
                 if (err) {
                   return print('error ocurred $payload');
                 }
@@ -73,12 +74,13 @@ class _AccRadioPlayer extends State<AccRadioPlayer> {
                   dynamic currentValue = payload['status']['value'];
                   bool newValue;
                   if (currentValue is bool) {
+                    // invert value
                     newValue = !currentValue;
                   } else {
                     newValue = false;
                   }
-                  bobaos.controlAccessoryValue(info.id, {"playing": newValue},
-                      (bool err, Object payload) {
+                  // and send new value to bobaoskit.worker
+                  bobaos.controlAccessoryValue(info.id, {"playing": newValue}, (bool err, Object payload) {
                     if (err) {
                       return print('error ocurred $payload');
                     }
@@ -89,6 +91,7 @@ class _AccRadioPlayer extends State<AccRadioPlayer> {
               });
             });
           },
+          // on long press open page with radio list
           onLongPress: () {
             Navigator.of(context).push(MaterialPageRoute(
                 builder: (context) => AccRadioPlayerControl(
@@ -126,8 +129,7 @@ class _AccRadioPlayerControl extends State<AccRadioPlayerControl> {
         ),
         body: ScopedModel<AccessoryInfo>(
             model: info,
-            child: ScopedModelDescendant<AccessoryInfo>(
-                builder: (context, child, model) {
+            child: ScopedModelDescendant<AccessoryInfo>(builder: (context, child, model) {
               List<dynamic> radioList = model.currentState['radio list'];
               return ListView.builder(
                   itemCount: radioList.length,
@@ -138,8 +140,8 @@ class _AccRadioPlayerControl extends State<AccRadioPlayerControl> {
                         groupValue: model.currentState['station'],
                         onChanged: (v) {
                           print(v);
-                          bobaos.controlAccessoryValue(model.id, {"station": v},
-                              (bool err, Object payload) {
+                          // on change radio value it send command to switch station
+                          bobaos.controlAccessoryValue(model.id, {"station": v}, (bool err, Object payload) {
                             if (err) {
                               return print('error ocurred $payload');
                             }

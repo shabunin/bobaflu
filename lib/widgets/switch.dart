@@ -48,17 +48,12 @@ class _AccSwitch extends State<AccSwitch> {
         child: ListTile(
           selected: false,
           leading: new Icon(Icons.lightbulb_outline),
-          title: new Text(
-              "${info.name}"),
-          trailing: new Switch(
-              value: switchState is bool
-                  ? switchState
-                  : false,
-              onChanged: (bool state) {}),
+          title: new Text("${info.name}"),
+          trailing: new Switch(value: switchState is bool ? switchState : false, onChanged: (bool state) {}),
           onTap: () {
             setState(() {
-              bobaos.getStatusValue(info.id, "state",
-                  (bool err, Object payload) {
+              // get status value at first
+              bobaos.getStatusValue(info.id, "state", (bool err, Object payload) {
                 if (err) {
                   return print('error ocurred $payload');
                 }
@@ -68,12 +63,13 @@ class _AccSwitch extends State<AccSwitch> {
                   dynamic currentValue = payload['status']['value'];
                   bool newValue;
                   if (currentValue is bool) {
+                    // invert
                     newValue = !currentValue;
                   } else {
                     newValue = false;
                   }
-                  bobaos.controlAccessoryValue(info.id, {"state": newValue},
-                      (bool err, Object payload) {
+                  // then send new value
+                  bobaos.controlAccessoryValue(info.id, {"state": newValue}, (bool err, Object payload) {
                     if (err) {
                       return print('error ocurred $payload');
                     }
