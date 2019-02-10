@@ -1,17 +1,17 @@
 import 'dart:convert';
 import 'dart:io';
 
-class BobaosCallback {
+class BobaosKitCallback {
   String name;
   Function cb;
 
-  BobaosCallback(String name, Function cb) {
+  BobaosKitCallback(String name, Function cb) {
     this.name = name;
     this.cb = cb;
   }
 }
 
-class BobaosWs {
+class BobaosKitWs {
   String url;
   WebSocket ws;
 
@@ -19,10 +19,10 @@ class BobaosWs {
   Map _reqs;
 
   // callbacks for bcasted events
-  List<BobaosCallback> _events;
+  List<BobaosKitCallback> _events;
 
   void registerListener(String name, Function cb) {
-    this._events.add(new BobaosCallback(name, cb));
+    this._events.add(new BobaosKitCallback(name, cb));
   }
 
   void removeAllListeners() {
@@ -31,7 +31,7 @@ class BobaosWs {
 
   void emitEvent(String name, dynamic params) {
     // call all listeners
-    List<BobaosCallback> foundCallbacks = this._events.where((t) => t.name == name).toList();
+    List<BobaosKitCallback> foundCallbacks = this._events.where((t) => t.name == name).toList();
     foundCallbacks.forEach((f) => f.cb(params));
   }
 
@@ -155,10 +155,10 @@ class BobaosWs {
     this._reqs[request_id] = cb;
   }
 
-  BobaosWs(String url) {
+  BobaosKitWs(String url) {
     this.url = url;
     this._reqs = new Map<int, Function>();
     this._req_count = 0;
-    this._events = new List<BobaosCallback>();
+    this._events = new List<BobaosKitCallback>();
   }
 }

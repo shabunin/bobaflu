@@ -3,7 +3,7 @@ import 'package:mdns/mdns.dart';
 
 import './classes/AccessoryInfo.dart';
 
-import './bobaos.dart';
+import './BobaosKit.dart';
 import './widgets/switch.dart';
 import './widgets/radioPlayer.dart';
 import './widgets/temperatureSensor.dart';
@@ -41,12 +41,12 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class BobaosFound {
+class BobaosKitFound {
   String name;
   String host;
   int port;
 
-  BobaosFound(String name, String host, int port) {
+  BobaosKitFound(String name, String host, int port) {
     this.name = name;
     this.host = host;
     this.port = port;
@@ -55,7 +55,7 @@ class BobaosFound {
 
 class _MyHomePageState extends State<MyHomePage> {
   DiscoveryCallbacks discoveryCallbacks;
-  List<BobaosFound> litems = [];
+  List<BobaosKitFound> litems = [];
 
   TextEditingController _c;
 
@@ -74,12 +74,12 @@ class _MyHomePageState extends State<MyHomePage> {
     }, onResolved: (ServiceInfo info) {
       print("Resolved Service ${info.toString()}");
       setState(() {
-        BobaosFound bobaosFoundItem = new BobaosFound(info.name, info.host, info.port);
-        litems.add(bobaosFoundItem);
+        BobaosKitFound bobaosKitFoundItem = new BobaosKitFound(info.name, info.host, info.port);
+        litems.add(bobaosKitFoundItem);
       });
     }, onLost: (ServiceInfo info) {
       print("Lost Service ${info.toString()}");
-      int index = litems.indexWhere((BobaosFound item) => item.name == info.name);
+      int index = litems.indexWhere((BobaosKitFound item) => item.name == info.name);
       setState(() {
         litems.removeAt(index);
       });
@@ -175,7 +175,7 @@ class AccessoryListPage extends StatefulWidget {
 
 class _AccessoryListPage extends State<AccessoryListPage> {
   List<AccessoryInfo> accessoryList = [];
-  BobaosWs bobaos;
+  BobaosKitWs bobaoskit;
 
   initState() {
     super.initState();
@@ -185,10 +185,10 @@ class _AccessoryListPage extends State<AccessoryListPage> {
 
   initBobaos() async {
     // first, connect to bobaoskit.worker then get all accessories
-    bobaos = new BobaosWs("ws:/${widget.host}");
+    bobaoskit = new BobaosKitWs("ws:/${widget.host}");
     // register listeners to update accessories list/update accessories status
-    bobaos.removeAllListeners();
-    bobaos.registerListener("update status value", (dynamic payload) {
+    bobaoskit.removeAllListeners();
+    bobaoskit.registerListener("update status value", (dynamic payload) {
       dynamic id = payload['id'];
       // find accessory in list and update state
       int index = accessoryList.indexWhere((f) => f.id == id);
@@ -211,7 +211,7 @@ class _AccessoryListPage extends State<AccessoryListPage> {
         setState(() {});
       }
     });
-    bobaos.registerListener("remove accessory", (dynamic payload) {
+    bobaoskit.registerListener("remove accessory", (dynamic payload) {
       //{"method":"remove accessory","payload":"thermostat_1"}
       void processOneAccessory(id) {
         dynamic id = payload;
@@ -231,16 +231,16 @@ class _AccessoryListPage extends State<AccessoryListPage> {
         processOneAccessory(payload);
       }
     });
-    bobaos.registerListener("clear accessories", (dynamic payload) {
+    bobaoskit.registerListener("clear accessories", (dynamic payload) {
       setState(() {
         accessoryList.clear();
       });
     });
-    bobaos.registerListener("add accessory", (dynamic payload) {
+    bobaoskit.registerListener("add accessory", (dynamic payload) {
       void processOneAccessory(payload) {
         AccessoryInfo f = new AccessoryInfo(payload);
         // get all status values
-        bobaos.getStatusValue(f.id, f.status, (bool err, dynamic payload) {
+        bobaoskit.getStatusValue(f.id, f.status, (bool err, dynamic payload) {
           dynamic statusValues = payload['status'];
           if (statusValues is Map) {
             dynamic field = statusValues['field'];
@@ -269,10 +269,10 @@ class _AccessoryListPage extends State<AccessoryListPage> {
       }
     });
 
-    await bobaos.initWs();
+    await bobaoskit.initWs();
     print("BobaosWs ready ${widget.host}");
     // get list of all accessories
-    bobaos.getAccessoryInfo(null, (bool err, Object payload) {
+    bobaoskit.getAccessoryInfo(null, (bool err, Object payload) {
       if (err) {
         return print('error ocurred $payload');
       }
@@ -281,7 +281,7 @@ class _AccessoryListPage extends State<AccessoryListPage> {
       tmpList.forEach((t) {
         AccessoryInfo f = new AccessoryInfo(t);
         // now get all status values for each accessory
-        bobaos.getStatusValue(f.id, f.status, (bool err, dynamic payload) {
+        bobaoskit.getStatusValue(f.id, f.status, (bool err, dynamic payload) {
           dynamic statusValues = payload['status'];
           if (statusValues is Map) {
             dynamic field = statusValues['field'];
@@ -311,7 +311,7 @@ class _AccessoryListPage extends State<AccessoryListPage> {
   Widget build(BuildContext context) {
     return new WillPopScope(
         onWillPop: () async {
-          await bobaos.closeWs();
+          await bobaoskit.closeWs();
           Navigator.of(context).pop();
         },
         child: new Scaffold(
@@ -320,7 +320,7 @@ class _AccessoryListPage extends State<AccessoryListPage> {
             leading: new IconButton(
               icon: new Icon(Icons.arrow_back),
               onPressed: () async {
-                await bobaos.closeWs();
+                await bobaoskit.closeWs();
                 Navigator.of(context).pop();
               },
             ),
@@ -335,22 +335,22 @@ class _AccessoryListPage extends State<AccessoryListPage> {
               if (info.type == "switch") {
                 return AccSwitch(
                   info: info,
-                  bobaos: bobaos,
+                  bobaos: bobaoskit,
                 );
               }
               if (info.type == "temperature sensor") {
                 return AccTemperatureSensor(
                   info: info,
-                  bobaos: bobaos,
+                  bobaos: bobaoskit,
                 );
               }
               if (info.type == "radio player") {
-                return AccRadioPlayer(info: info, bobaos: bobaos);
+                return AccRadioPlayer(info: info, bobaos: bobaoskit);
               }
               if (info.type == "thermostat") {
                 return AccThermostat(
                   info: info,
-                  bobaos: bobaos,
+                  bobaos: bobaoskit,
                 );
               }
             },

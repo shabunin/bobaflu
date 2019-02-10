@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 import '../classes/AccessoryInfo.dart';
-import '../bobaos.dart';
+import '../BobaosKit.dart';
 
 class AccTemperatureSensor extends StatelessWidget {
   AccTemperatureSensor({Key key, this.info, this.bobaos}) : super(key: key);
 
   final AccessoryInfo info;
-  final BobaosWs bobaos;
+  final BobaosKitWs bobaos;
 
   @override
   Widget build(BuildContext context) {

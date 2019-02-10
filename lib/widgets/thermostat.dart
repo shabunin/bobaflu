@@ -5,13 +5,13 @@ import 'package:flutter/painting.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 import '../classes/AccessoryInfo.dart';
-import '../bobaos.dart';
+import '../BobaosKit.dart';
 
 class AccThermostat extends StatelessWidget {
   AccThermostat({Key key, this.info, this.bobaos}) : super(key: key);
 
   AccessoryInfo info;
-  BobaosWs bobaos;
+  BobaosKitWs bobaos;
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +65,7 @@ class AccThermostatControl extends StatelessWidget {
   AccThermostatControl({Key key, this.info, this.bobaos}) : super(key: key);
 
   final AccessoryInfo info;
-  final BobaosWs bobaos;
+  final BobaosKitWs bobaos;
 
   @override
   Widget build(BuildContext context) {
